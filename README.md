@@ -1,5 +1,7 @@
 # GitHub Copilot Zero to Agent — Workshop Demos
 
+[![CI](https://github.com/dvazqueb11/ghco-demos/actions/workflows/ci.yml/badge.svg)](https://github.com/dvazqueb11/ghco-demos/actions/workflows/ci.yml)
+
 Repositorio de soporte para el workshop **GitHub Copilot: Zero to Agent (L300)** — Walmart Mexico.
 
 ## Estructura
