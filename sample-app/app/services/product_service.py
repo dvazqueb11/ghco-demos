@@ -141,6 +141,18 @@ class ProductService:
     ) -> tuple[list[Product], int]:
         """Search products with optional filters and pagination.
 
+        Args:
+            category: Exact category filter, or `None`.
+            min_price: Lower inclusive price bound, or `None`.
+            max_price: Upper inclusive price bound, or `None`.
+            limit: Maximum number of products to return.
+            offset: Number of matching products to skip.
+
+        Returns:
+            A tuple containing:
+            - List of matching products.
+            - Total count of matching products before pagination.
+
         Raises:
             InvalidPriceRangeError: If `min_price` is greater than `max_price`.
         """

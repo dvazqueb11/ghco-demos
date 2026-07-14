@@ -87,7 +87,20 @@ class ProductRepository:
         limit: int,
         offset: int,
     ) -> tuple[Sequence[Product], int]:
-        """Search products by optional filters with pagination."""
+        """Search products by optional filters with pagination.
+
+        Args:
+            category: Exact category filter, or `None` to include all.
+            min_price: Lower inclusive price bound, or `None`.
+            max_price: Upper inclusive price bound, or `None`.
+            limit: Maximum number of rows to return.
+            offset: Number of rows to skip before returning results.
+
+        Returns:
+            A tuple with:
+            - Sequence of matching `Product` rows ordered by price ascending.
+            - Total number of matching rows before pagination.
+        """
         filters = []
         if category is not None:
             filters.append(Product.category == category)

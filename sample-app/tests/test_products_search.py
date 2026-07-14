@@ -35,6 +35,14 @@ async def async_client(db_session: AsyncSession) -> AsyncIterator[AsyncClient]:
 
 
 async def _create_product(service: ProductService, sku: str, category: str, price: str) -> None:
+    """Create a test product with a generated name and default stock.
+
+    Args:
+        service: Product service used to persist the product.
+        sku: Unique SKU for the product.
+        category: Category assigned to the product.
+        price: Decimal price represented as string.
+    """
     await service.create_product(
         ProductCreate(
             sku=sku,
@@ -180,4 +188,3 @@ async def test_search_products_endpoint_con_rango_invalido_retorna_422(
 
     assert response.status_code == 422
     assert response.json()["detail"] == "min_price must be less than or equal to max_price"
-
