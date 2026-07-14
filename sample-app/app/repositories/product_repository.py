@@ -109,13 +109,14 @@ class ProductRepository:
         if max_price is not None:
             filters.append(Product.price <= max_price)
 
-        stmt = select(Product)
-        count_stmt = select(func.count()).select_from(Product)
-        if filters:
-            stmt = stmt.where(*filters)
-            count_stmt = count_stmt.where(*filters)
-
-        stmt = stmt.order_by(Product.price.asc()).limit(limit).offset(offset)
+        stmt = (
+            select(Product)
+            .where(*filters)
+            .order_by(Product.price.asc())
+            .limit(limit)
+            .offset(offset)
+        )
+        count_stmt = select(func.count()).select_from(Product).where(*filters)
         result = await self._session.execute(stmt)
         count_result = await self._session.execute(count_stmt)
         total = count_result.scalar_one()

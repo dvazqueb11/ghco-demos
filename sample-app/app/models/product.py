@@ -53,7 +53,10 @@ class ProductRead(BaseModel):
 class ProductSearchResult(BaseModel):
     """Paginated search response with total count."""
 
-    total: int = Field(ge=0)
+    total: int = Field(
+        ge=0,
+        description="Total matching products before applying limit/offset.",
+    )
     items: list[ProductRead]
 
 

@@ -34,7 +34,9 @@ async def async_client(db_session: AsyncSession) -> AsyncIterator[AsyncClient]:
     app.dependency_overrides.clear()
 
 
-async def _create_product(service: ProductService, sku: str, category: str, price: str) -> None:
+async def create_test_product(
+    service: ProductService, sku: str, category: str, price: str
+) -> None:
     """Create a test product with a generated name and default stock.
 
     Args:
@@ -58,9 +60,9 @@ async def _create_product(service: ProductService, sku: str, category: str, pric
 async def test_search_products_con_filtros_retorna_items_ordenados_y_total(
     service: ProductService,
 ) -> None:
-    await _create_product(service, "SKU-001", "tech", "19.99")
-    await _create_product(service, "SKU-002", "tech", "49.99")
-    await _create_product(service, "SKU-003", "home", "15.00")
+    await create_test_product(service, "SKU-001", "tech", "19.99")
+    await create_test_product(service, "SKU-002", "tech", "49.99")
+    await create_test_product(service, "SKU-003", "home", "15.00")
 
     items, total = await service.search_products(
         category="tech",
