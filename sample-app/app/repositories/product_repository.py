@@ -1,8 +1,9 @@
 """Repository pattern for Product persistence."""
 
 from collections.abc import Sequence
+from decimal import Decimal
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.product import Product, ProductCreate
@@ -77,3 +78,32 @@ class ProductRepository:
     async def delete(self, product: Product) -> None:
         """Delete `product` from the session."""
         await self._session.delete(product)
+
+    async def search(
+        self,
+        category: str | None,
+        min_price: Decimal | None,
+        max_price: Decimal | None,
+        limit: int,
+        offset: int,
+    ) -> tuple[Sequence[Product], int]:
+        """Search products by optional filters with pagination."""
+        filters = []
+        if category is not None:
+            filters.append(Product.category == category)
+        if min_price is not None:
+            filters.append(Product.price >= min_price)
+        if max_price is not None:
+            filters.append(Product.price <= max_price)
+
+        stmt = select(Product)
+        count_stmt = select(func.count()).select_from(Product)
+        if filters:
+            stmt = stmt.where(*filters)
+            count_stmt = count_stmt.where(*filters)
+
+        stmt = stmt.order_by(Product.price.asc()).limit(limit).offset(offset)
+        result = await self._session.execute(stmt)
+        count_result = await self._session.execute(count_stmt)
+        total = count_result.scalar_one()
+        return result.scalars().all(), total
