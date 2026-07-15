@@ -1,72 +1,138 @@
-# GitHub Copilot Zero to Agent — Workshop Demos
+# ghco-demos
 
-Repositorio de soporte para el workshop **GitHub Copilot: Zero to Agent (L300)** — Walmart Mexico.
+Repositorio de referencia para trabajar con **GitHub Copilot** sobre un proyecto
+Python real. Incluye una API de inventario limpia (FastAPI + SQLAlchemy async),
+custom instructions con las convenciones del equipo, una skill personalizada de
+Copilot y un pipeline de CI con cobertura.
 
-## Estructura
+Pensado para usarse como plantilla o campo de práctica: los archivos siguen
+convenciones consistentes que Copilot puede aprender y replicar automáticamente.
+
+---
+
+## Contenido
 
 ```
-├── walmart-mx-copilot-zero-to-agent-demos.md   # Guía completa de las 5 demos
-├── walmart-mx-copilot-zero-to-agent/           # Companion scripts por demo
-│   ├── demo-1-product-service.py               # Código Python sin optimizar (Demo 1)
-│   ├── demo-3-copilot-instructions.md          # Template copilot-instructions.md
-│   └── demo-3-test-instructions.md             # Template *.instructions.md
-├── sample-app/                                 # App de referencia (FastAPI + SQLAlchemy async)
-│   ├── app/                                    # main, routes, services, repositories, models
-│   ├── tests/                                  # conftest.py (tests reales los generan los attendees)
-│   └── README.md                               # Setup y ejercicios sugeridos
+ghco-demos/
+├── README.md
+├── sample-app/                                 # API de inventario de referencia
+│   ├── app/
+│   │   ├── main.py                             # FastAPI entrypoint
+│   │   ├── database.py                         # Async engine + session factory
+│   │   ├── logging_config.py                   # structlog setup
+│   │   ├── models/product.py                   # SQLAlchemy + Pydantic schemas
+│   │   ├── repositories/product_repository.py  # Repository pattern
+│   │   ├── services/product_service.py         # Business logic
+│   │   └── routes/products.py                  # CRUD endpoints
+│   ├── tests/                                  # conftest.py + espacio para tests
+│   ├── requirements.txt
+│   ├── pyproject.toml
+│   └── README.md
 └── .github/
-    ├── copilot-instructions.md                 # Convenciones del repo (Demo 3)
+    ├── copilot-instructions.md                 # Convenciones del repo
     ├── PULL_REQUEST_TEMPLATE.md
-    ├── ISSUE_TEMPLATE/                         # Templates para Demo 4/5
-    ├── SEED_ISSUES.md                          # Comandos gh para pre-poblar issues (Demo 4/5)
+    ├── ISSUE_TEMPLATE/                         # bug_report + feature_request
     ├── skills/
     │   └── generate-pytest-coverage/           # Skill custom (SKILL.md)
     └── workflows/
-        ├── ci.yml                              # pytest + coverage on push/PR (Demo 5)
-        └── copilot-setup-steps.yml             # Env setup para Cloud Agent (Demo 5)
+        ├── ci.yml                              # pytest + coverage en push/PR
+        └── copilot-setup-steps.yml             # Env setup para Copilot Coding Agent
 ```
 
-## Mapa demo → activos
+---
 
-| Demo | Qué se usa de este repo |
-|------|-------------------------|
-| 1. Chat + Inline Chat | `walmart-mx-copilot-zero-to-agent/demo-1-product-service.py` |
-| 2. Agent Mode | Directorio vacío nuevo (fuera de este repo) |
-| 3. Custom Instructions | `.github/copilot-instructions.md` + `sample-app/` como campo de práctica |
-| 4. GitHub MCP Server | Issues/PRs creados con `.github/SEED_ISSUES.md` |
-| 5. Cloud Agent | Issue de `.github/SEED_ISSUES.md` §3 + `sample-app/` como target + `.github/workflows/*` |
+## Stack
 
-## Setup del repo en GitHub (antes del workshop)
+- **Python 3.12**
+- **FastAPI** + **Pydantic v2**
+- **SQLAlchemy 2.0** async (SQLite por defecto vía `aiosqlite`; PostgreSQL vía `asyncpg`)
+- **structlog** para logging estructurado
+- **pytest** + **pytest-asyncio** + **pytest-cov** para testing
 
-```pwsh
-# 1. Crear repo en GitHub y publicar
-gh repo create walmart-mx-copilot-demos --public --source=. --remote=origin --push
+---
 
-# 2. Habilitar Copilot Coding Agent en la organización / repo
-#    Settings → Copilot → Coding agent
-
-# 3. Pre-poblar issues para Demo 4 y 5
-#    Ver .github/SEED_ISSUES.md
-
-# 4. Verificar que CI corre verde
-gh workflow run ci.yml
-gh run watch
-```
-
-## Setup local del sample-app
+## Quick start
 
 ```pwsh
-cd sample-app
+# Clonar
+git clone <URL-de-este-repo> ghco-demos
+cd ghco-demos\sample-app
+
+# Entorno virtual + dependencias
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
+
+# Levantar la API
 uvicorn app.main:app --reload
 ```
 
-Ver [sample-app/README.md](sample-app/README.md) para los ejercicios sugeridos.
+Swagger UI: <http://localhost:8000/docs>
 
-## Skill custom
+### Ejecutar tests + coverage
 
-El repo incluye una skill `generate-pytest-coverage` que se activa en chat con
-`/generate-pytest-coverage <path/to/file.py>` o automáticamente cuando pides
-"genera tests con cobertura". Vive en [.github/skills/generate-pytest-coverage/SKILL.md](.github/skills/generate-pytest-coverage/SKILL.md).
+```pwsh
+cd sample-app
+pytest --cov=app --cov-report=html --cov-report=term-missing -v
+```
+
+Reporte HTML en `sample-app/htmlcov/index.html`.
+
+---
+
+## Convenciones del repositorio
+
+El archivo [.github/copilot-instructions.md](.github/copilot-instructions.md)
+documenta las reglas que **cualquier código** dentro de este repo debe cumplir.
+Copilot las lee automáticamente y las aplica al sugerir cambios.
+
+- **Estilo:** type hints obligatorios, docstrings Google, `snake_case`,
+  `PascalCase` para clases, `UPPER_SNAKE_CASE` para constantes.
+- **I/O:** siempre `async`/`await`.
+- **Errores:** nunca `bare except`; `HTTPException` para errores HTTP.
+- **Patrones:** Repository pattern para datos, Pydantic para request/response,
+  `structlog` para logging.
+- **Tests:** `pytest`, fixtures para setup, mock de servicios externos con
+  `unittest.mock`, naming `test_{metodo}_{escenario}_{resultado_esperado}`,
+  cobertura mínima **80%**.
+
+El workflow [.github/workflows/ci.yml](.github/workflows/ci.yml) valida estas
+reglas en cada push y PR: cualquier PR que baje la cobertura por debajo de 80%
+falla el CI.
+
+---
+
+## Skill custom: `generate-pytest-coverage`
+
+El repo incluye una skill para GitHub Copilot que encapsula el flujo completo
+de "generar tests unitarios con cobertura" en un solo comando.
+
+Uso en Copilot Chat:
+
+```
+/generate-pytest-coverage <ruta/al/archivo.py>
+```
+
+La skill genera los tests siguiendo las convenciones del repo, corre
+`pytest --cov` y reporta la cobertura obtenida junto con el HTML.
+
+Definición: [.github/skills/generate-pytest-coverage/SKILL.md](.github/skills/generate-pytest-coverage/SKILL.md)
+
+---
+
+## Ejercicios sugeridos
+
+Ver [sample-app/README.md](sample-app/README.md) para una lista de ejercicios
+prácticos (agregar endpoints, generar tests, refactors, etc.) mapeados a las
+distintas capacidades de GitHub Copilot (Ask Chat, Inline Chat, Agent Mode,
+skills, Coding Agent).
+
+---
+
+## Recursos
+
+- Documentación oficial de GitHub Copilot: <https://docs.github.com/copilot>
+- Custom instructions: <https://docs.github.com/en/copilot/customizing-copilot/adding-repository-custom-instructions-for-github-copilot>
+- Agent skills: <https://code.visualstudio.com/docs/copilot/customization/agent-skills>
+- Copilot Coding Agent: <https://docs.github.com/en/copilot/using-github-copilot/coding-agent>
+- `copilot-setup-steps.yml`: <https://docs.github.com/en/copilot/customizing-copilot/customizing-the-development-environment-for-copilot-coding-agent>

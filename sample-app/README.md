@@ -1,25 +1,26 @@
 # Sample App — Inventory API
 
 FastAPI + SQLAlchemy 2.0 async + Pydantic v2. Sigue las convenciones de
-[`.github/copilot-instructions.md`](../.github/copilot-instructions.md) al pie de la letra
-para que sirva como **referencia** y como **campo de práctica** para los ejercicios de Copilot.
+[.github/copilot-instructions.md](../.github/copilot-instructions.md) al pie de la letra
+para que sirva como **referencia** de implementación limpia y como **campo de práctica**
+para ejercicios con GitHub Copilot.
 
 ## Layout
 
 ```
 sample-app/
 ├── app/
-│   ├── main.py                     # FastAPI app + startup
-│   ├── database.py                 # Async engine + session factory
-│   ├── logging_config.py           # structlog setup
-│   ├── models/product.py           # SQLAlchemy model + Pydantic schemas
+│   ├── main.py                              # FastAPI app + startup
+│   ├── database.py                          # Async engine + session factory
+│   ├── logging_config.py                    # structlog setup
+│   ├── models/product.py                    # SQLAlchemy model + Pydantic schemas
 │   ├── repositories/product_repository.py   # Repository pattern
-│   ├── services/product_service.py # Business logic
-│   └── routes/products.py          # CRUD endpoints
-├── tests/                          # Casi vacío a propósito — para practicar
+│   ├── services/product_service.py          # Business logic
+│   └── routes/products.py                   # CRUD endpoints
+├── tests/                                   # Casi vacío a propósito — para practicar
 │   └── conftest.py
 ├── requirements.txt
-└── pyproject.toml                  # pytest + coverage config
+└── pyproject.toml                           # pytest + coverage config
 ```
 
 ## Setup
@@ -36,16 +37,16 @@ Abre <http://localhost:8000/docs> para el Swagger UI.
 
 ## Ejercicios sugeridos con Copilot
 
-Los archivos están diseñados para practicar cada capacidad del workshop.
+Los archivos están diseñados para practicar cada capacidad de GitHub Copilot.
 
 | # | Ejercicio | Archivo objetivo | Capacidad de Copilot |
 |---|---|---|---|
-| 1 | Generar tests unitarios con cobertura ≥ 80% para el service | [`app/services/product_service.py`](app/services/product_service.py) | Skill `/generate-pytest-coverage` |
-| 2 | Agregar endpoint `GET /products/search?category=&min_price=&max_price=` | [`app/routes/products.py`](app/routes/products.py) | Agent Mode |
-| 3 | Documentar todas las funciones públicas del repository con docstrings Google | [`app/repositories/product_repository.py`](app/repositories/product_repository.py) | Inline Chat |
-| 4 | Refactorizar `adjust_stock` para emitir un evento estructurado con `structlog` | [`app/services/product_service.py`](app/services/product_service.py) | Inline Chat |
+| 1 | Generar tests unitarios con cobertura ≥ 80% para el service | [app/services/product_service.py](app/services/product_service.py) | Skill `/generate-pytest-coverage` |
+| 2 | Agregar endpoint `GET /products/search?category=&min_price=&max_price=` | [app/routes/products.py](app/routes/products.py) | Agent Mode |
+| 3 | Documentar todas las funciones públicas del repository con docstrings Google | [app/repositories/product_repository.py](app/repositories/product_repository.py) | Inline Chat |
+| 4 | Refactorizar `adjust_stock` para emitir un evento estructurado con `structlog` | [app/services/product_service.py](app/services/product_service.py) | Inline Chat |
 | 5 | Crear un modelo `Order` con su repository, service y routes | (nuevos archivos) | Agent Mode + Custom Instructions |
-| 6 | Agregar validación Pydantic v2: `sku` debe ser alfanumérico, precio ≤ 1e6 | [`app/models/product.py`](app/models/product.py) | Ask Chat |
+| 6 | Agregar validación Pydantic v2: `sku` debe ser alfanumérico, precio ≤ 1e6 | [app/models/product.py](app/models/product.py) | Ask Chat |
 
 ## Ejecutar tests + coverage
 

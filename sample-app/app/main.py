@@ -21,10 +21,7 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
 app = FastAPI(
     title="Inventory API",
     version="0.1.0",
-    description=(
-        "Sample FastAPI + SQLAlchemy 2.0 async application for the "
-        "GitHub Copilot Zero to Agent workshop."
-    ),
+    description="Sample FastAPI + SQLAlchemy 2.0 async inventory service.",
     lifespan=lifespan,
 )
 

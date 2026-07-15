@@ -37,5 +37,4 @@
   - Tests: `sample-app/tests/`
   - Setup: `cd sample-app && pip install -r requirements.txt`
   - Ejecutar tests: `cd sample-app && pytest --cov=app --cov-report=term-missing`
-- Codigo de demo intencionalmente sin optimizar (NO tomar como referencia): `walmart-mx-copilot-zero-to-agent/demo-1-product-service.py`
 - CI corre pytest + coverage sobre `sample-app/` en cada push/PR — todo PR debe pasar CI verde con cobertura >= 80%

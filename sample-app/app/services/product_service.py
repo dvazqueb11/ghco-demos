@@ -1,8 +1,7 @@
 """Business logic for Product operations.
 
-This is the clean, convention-following counterpart to
-`walmart-mx-copilot-zero-to-agent/demo-1-product-service.py`. Use it as a
-reference for what Copilot should generate when custom instructions are active.
+Enforces business rules (unique SKUs, non-negative stock, existence checks)
+on top of the ProductRepository.
 """
 
 import structlog
