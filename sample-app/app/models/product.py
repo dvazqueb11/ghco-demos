@@ -50,6 +50,16 @@ class ProductRead(BaseModel):
     created_at: datetime
 
 
+class ProductSearchResult(BaseModel):
+    """Paginated search response with total count."""
+
+    total: int = Field(
+        ge=0,
+        description="Total matching products before applying limit/offset.",
+    )
+    items: list[ProductRead]
+
+
 class StockAdjustment(BaseModel):
     """Payload for adjusting a product's stock (positive or negative delta)."""
 

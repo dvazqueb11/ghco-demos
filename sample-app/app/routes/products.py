@@ -1,13 +1,21 @@
 """FastAPI routes for products."""
 
+from decimal import Decimal
+
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_session
-from app.models.product import ProductCreate, ProductRead, StockAdjustment
+from app.models.product import (
+    ProductCreate,
+    ProductRead,
+    ProductSearchResult,
+    StockAdjustment,
+)
 from app.repositories.product_repository import ProductRepository
 from app.services.product_service import (
     DuplicateSkuError,
+    InvalidPriceRangeError,
     InsufficientStockError,
     ProductNotFoundError,
     ProductService,
@@ -31,6 +39,35 @@ async def list_products(
     """List products, optionally filtered by category."""
     products = await service.list_products(category=category)
     return [ProductRead.model_validate(p) for p in products]
+
+
+@router.get("/search", response_model=ProductSearchResult)
+async def search_products(
+    category: str | None = Query(default=None),
+    min_price: Decimal | None = Query(default=None, ge=Decimal("0")),
+    max_price: Decimal | None = Query(default=None, ge=Decimal("0")),
+    limit: int = Query(default=20, ge=1, le=100),
+    offset: int = Query(default=0, ge=0),
+    service: ProductService = Depends(get_service),
+) -> ProductSearchResult:
+    """Search products by optional category and price range."""
+    try:
+        items, total = await service.search_products(
+            category=category,
+            min_price=min_price,
+            max_price=max_price,
+            limit=limit,
+            offset=offset,
+        )
+    except InvalidPriceRangeError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)
+        ) from exc
+
+    return ProductSearchResult(
+        total=total,
+        items=[ProductRead.model_validate(item) for item in items],
+    )
 
 
 @router.get("/{product_id}", response_model=ProductRead)

@@ -4,6 +4,8 @@ Enforces business rules (unique SKUs, non-negative stock, existence checks)
 on top of the ProductRepository.
 """
 
+from decimal import Decimal
+
 import structlog
 
 from app.models.product import Product, ProductCreate
@@ -22,6 +24,10 @@ class ProductNotFoundError(Exception):
 
 class InsufficientStockError(Exception):
     """Raised when a stock adjustment would drop stock below zero."""
+
+
+class InvalidPriceRangeError(Exception):
+    """Raised when the requested price range is invalid."""
 
 
 class ProductService:
@@ -123,3 +129,46 @@ class ProductService:
         product = await self.get_product(product_id)
         await self._repository.delete(product)
         logger.info("product.deleted", product_id=product_id)
+
+    async def search_products(
+        self,
+        category: str | None,
+        min_price: Decimal | None,
+        max_price: Decimal | None,
+        limit: int,
+        offset: int,
+    ) -> tuple[list[Product], int]:
+        """Search products with optional filters and pagination.
+
+        Args:
+            category: Exact category filter, or `None`.
+            min_price: Lower inclusive price bound, or `None`.
+            max_price: Upper inclusive price bound, or `None`.
+            limit: Maximum number of products to return.
+            offset: Number of matching products to skip.
+
+        Returns:
+            A tuple containing:
+            - List of matching products.
+            - Total count of matching products before pagination.
+
+        Raises:
+            InvalidPriceRangeError: If `min_price` is greater than `max_price`.
+        """
+        if (
+            min_price is not None
+            and max_price is not None
+            and min_price > max_price
+        ):
+            raise InvalidPriceRangeError(
+                "min_price must be less than or equal to max_price"
+            )
+
+        products, total = await self._repository.search(
+            category=category,
+            min_price=min_price,
+            max_price=max_price,
+            limit=limit,
+            offset=offset,
+        )
+        return list(products), total
